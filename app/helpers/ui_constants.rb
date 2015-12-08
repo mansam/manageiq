@@ -193,6 +193,7 @@ module UiConstants
       :containerimageregistry                   => "list",
       :cimbasestorageextent                     => "list",
       :cimstorageextent                         => "list",
+      :CloudObjectStoreObject                   => "list",
       :cloudtenant                              => "list",
       :cloudvolume                              => "list",
       :drift                                    => "expanded",

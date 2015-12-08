@@ -25,6 +25,7 @@ module Menu
         Menu::Section.new(:clo, N_("Clouds"), [
           Menu::Item.new('ems_cloud',           N_('Providers'),           'ems_cloud',                 {:feature => 'ems_cloud_show_list'},                     '/ems_cloud'),
           Menu::Item.new('availability_zone',   N_('Availability Zones'),  'availability_zone',         {:feature => 'availability_zone_show_list'},             '/availability_zone'),
+          Menu::Item.new('cloud_object_store_object',        N_('Objects'),             'cloud_object_store_object',              {:feature => 'cloud_object_store_object_show_list'},                  '/cloud_object_store_object'),
           Menu::Item.new('cloud_tenant',        N_('Tenants'),             'cloud_tenant',              {:feature => 'cloud_tenant_show_list'},                  '/cloud_tenant'),
           Menu::Item.new('cloud_volume',        N_('Volumes'),             'cloud_volume',              {:feature => 'cloud_volume_show_list'},                  '/cloud_volume'),
           Menu::Item.new('flavor',              N_('Flavors'),             'flavor',                    {:feature => 'flavor_show_list'},                        '/flavor'),

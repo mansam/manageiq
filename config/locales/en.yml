@@ -986,6 +986,8 @@ en:
       availability_zone:           Availability Zone
       cdroms:                      CD/DVD Drives
       cim_base_storage_extent:     Base Extents
+      cloud_object_store_object:   Cloud Object Store Object
+      cloud_object_store_objects:  Cloud Object Store Objects
       cloud_volume:                Cloud Volume
       cloud_volumes:               Cloud Volumes
       compliance_details:          Details

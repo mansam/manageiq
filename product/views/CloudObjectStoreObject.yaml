@@ -29,7 +29,7 @@ cols:
 include:
   cloud_object_store_container:
     columns:
-    - name
+    - key
   ext_management_system:
     columns:
     - name
@@ -44,7 +44,7 @@ col_order:
 - content_length
 - last_modified
 - etag
-- cloud_object_store_container.name
+- cloud_object_store_container.key
 - ext_management_system.name
 
 # Column titles, in order

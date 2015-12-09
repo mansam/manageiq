@@ -1,7 +1,7 @@
 module CloudObjectStoreObjectHelper::TextualSummary
 
   def textual_group_properties
-    %i(key)
+    %i(key content_type content_length last_modified etag)
   end
 
   def textual_group_relationships
@@ -14,6 +14,22 @@ module CloudObjectStoreObjectHelper::TextualSummary
 
   def textual_key
     @record.key
+  end
+
+  def textual_content_type
+    @record.content_type
+  end
+
+  def textual_content_length
+    {:label => "Content Length", :value => number_to_human_size(@record.content_length, :precision => 2)}
+  end
+
+  def textual_last_modified
+    @record.last_modified
+  end
+
+  def textual_etag
+    @record.etag
   end
 
   def textual_ems

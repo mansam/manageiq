@@ -1,4 +1,4 @@
-- if @record.try(:name)
+- if @record.try(:key)
   #accordion.panel-group
     = miq_accordion_panel(truncate(@record.key, :length => truncate_length), true, "icon") do
       = render(:partial  => "layouts/quadicon",
@@ -24,3 +24,8 @@
             = link_to("#{ui_lookup(:table => "cloud_tenant")}: #{@record.cloud_tenant.name}",
               cloud_tenant_path(@record.cloud_tenant.id),
               :title => _("Show this Cloud Object Store Object's parent %s") % ui_lookup(:table => "cloud_tenant"))
+        - if role_allows(:feature => "cloud_object_store_container_show") && @record.cloud_object_store_object_container
+          %li
+            = link_to("#{ui_lookup(:table => "cloud_object_store_object_container")}: #{@record.cloud_object_store_object_container.key}",
+              cloud_object_store_object_container(@record.cloud_object_store_object_container.id),
+              :title => _("Show this Cloud Object Store Object's parent %s") % ui_lookup(:table => "cloud_object_store_object_container"))

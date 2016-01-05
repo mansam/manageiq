@@ -1,6 +1,20 @@
 ---
 :model: CloudVolume
 :button_groups:
+- :name: cloud_volume_vmdb
+  :items:
+  - :buttonSelect: cloud_volume_vmdb_choice
+    :image: vmdb
+    :title: Configuration
+    :text: Configuration
+    :items:
+    - :button: cloud_volume_delete
+      :image: remove
+      :text: 'Remove selected #{ui_lookup(:tables=>"cloud_volume")} from the VMDB'
+      :title: 'Remove selected #{ui_lookup(:tables=>"cloud_volumes")} from the VMDB'
+      :url_parms: '&refresh=y'
+      :confirm: 'Warning: The selected #{ui_lookup(:table=>"cloud_volumes")} and ALL of its components will be permanently removed from the Virtual Management Database.  Are you sure you want to remove the selected #{ui_lookup(:table=>"cloud_volumes")}?'
+    - :separator:
 - :name: cloud_volume_policy
   :items:
   - :buttonSelect: cloud_volume_policy_choice

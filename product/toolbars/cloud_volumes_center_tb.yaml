@@ -16,7 +16,7 @@
       :image: remove
       :text: 'Remove selected #{ui_lookup(:tables=>"cloud_volume")} from the VMDB'
       :title: 'Remove selected #{ui_lookup(:tables=>"cloud_volumes")} from the VMDB'
-      :url_params: 'main_div'
+      :url_parms: 'main_div'
       :confirm: 'Warning: The selected #{ui_lookup(:tables=>"cloud_volumes")} and ALL of their components will be permanently removed from the Virtual Management Database.  Are you sure you want to remove the selected #{ui_lookup(:tables=>"cloud_volumes")}?'
       :enabled: 'false'
       :onwhen: '1+'

@@ -75,6 +75,9 @@ class CloudVolumeController < ApplicationController
     drop_breadcrumb({:name => "Edit #{ui_lookup(:table => 'cloud_volume')} '#{@volume.name}'", :url => "/cloud_volume/edit/#{@volume.id}"})
   end
 
+  def form_button
+  end
+
   def show
     @display = params[:display] || "main" unless control_selected?
     @showtype = @display

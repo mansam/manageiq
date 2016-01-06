@@ -492,6 +492,10 @@
       :description: Add a Volume
       :feature_type: admin
       :identifier: cloud_volume_new
+    - :name: Edit
+      :description: Edit a Volume
+      :feature_type: admin
+      :identifier: cloud_volume_edit
     - :name: Remove
       :description: Remove Volumes from the VMDB
       :feature_type: admin

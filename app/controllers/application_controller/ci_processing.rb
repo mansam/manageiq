@@ -486,6 +486,8 @@ module ApplicationController::CiProcessing
     when "host_edit"
       @redirect_controller = "host"
       session[:host_items] = obj if obj.length > 1
+    when "cloud_volume_edit"
+      @redirect_controller = "cloud_volume"
     end
     @redirect_id = obj[0] if obj.length == 1      # not redirecting to an id if multi host are selected for credential edit
 
@@ -1898,69 +1900,6 @@ module ApplicationController::CiProcessing
       @refresh_partial = "layouts/gtl"
     end
   end
-
-
-  def delete_volumes
-    assert_privileges("cloud_volume_delete")
-    volumes = []
-    if @lastaction == "show_list" || (@lastaction == "show" && @layout != "cloud_volume")
-      volumes = find_checked_items
-      if volumes.empty?
-        add_flash(
-          _("No %{model} were selected for %{task}") % {
-            :model => ui_lookup(:tables => "cloud_volumes"),
-            :task => "deletion"
-          },
-          :error
-        )
-      end
-      volumes_to_delete = []
-      volumes.each do |v|
-        volume = CloudVolume.find_by_id(v)
-        if volume.attachments.length <= 0
-          volumes_to_delete.push(v)
-        else
-          add_flash(_("\"%s\": cannot be removed because it has attachments.") % volume.name, :warning)
-        end
-      end
-      process_cloud_volumes(volumes_to_delete, "destroy") unless volumes_to_delete.empty?
-    else
-      if params[:id].nil? || CloudVolume.find_by_id(params[:id]).nil?
-        add_flash(_("%s no longer exists.") % ui_lookup(:tables => "storage"), :error)
-      else
-        volumes.push(params[:id])
-      end
-      process_cloud_volumes(volumes, "destroy") unless volumes.empty?
-      @single_delete = true unless flash_errors?
-      add_flash(_("The selected %s was deleted") % ui_lookup(:table => "cloud_volume")) if @flash_array.nil?
-    end
-    if @lastaction == "show_list"
-      show_list
-      @refresh_partial = "layouts/gtl"
-    end
-  end
-
-  def process_cloud_volumes(volumes, task)
-    return if volumes.empty?
-
-    if task == "destroy"
-      CloudVolume.find_all_by_id(volumes, :order => "lower(name)").each do |volume|
-        id = volume.id
-        volume_name = volume.name
-        audit = {
-          :event => "cloud_volume_record_delete_initiateed",
-          :message => "[#{volume_name}] Record delete initiated",
-          :target_id => id,
-          :target_class => "CloudVolume",
-          :userid => session[:userid]
-        }
-        AuditEvent.success(audit)
-      end
-      #CloudVolume.destroy_queue(volumes)
-      add_flash("Delete initiated for %{count_model} from the CFME Database" % {:count_model => pluralize(volumes.length, "cloud_volume")})
-    end
-  end
-
 
   def delete_elements(model_class, destroy_method)
     elements = []

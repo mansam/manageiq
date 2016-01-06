@@ -17,11 +17,27 @@ class CloudVolumeController < ApplicationController
     @refresh_div = "main_div"
     return tag("CloudVolume") if params[:pressed] == "cloud_volume_tag"
     delete_volumes if params[:pressed] == 'cloud_volume_delete'
+    edit_record if params[:pressed] == 'cloud_volume_edit'
 
     if !@flash_array.nil? && params[:pressed] == "cloud_volume_delete" && @single_delete
       render :update do |page|
         # redirect to build the retire screen
         page.redirect_to :action => 'show_list', :flash_msg => @flash_array[0][:message]
+      end
+    elsif params[:pressed] == "cloud_volume_edit"
+      if @flash_array
+        show_list
+        replace_gtl_main_div
+      else
+        if @redirect_controller
+          render :update do |page|
+            page.redirect_to :controller => @redirect_controller, :action => @refresh_partial, :id => @redirect_id, :org_controller => @org_controller
+          end
+        else
+          render :update do |page|
+            page.redirect_to :action => @refresh_partial, :id => @redirect_id
+          end
+        end
       end
     else
       if !flash_errors? && @refresh_div == "main_div" && @lastaction == "show_list"
@@ -30,6 +46,33 @@ class CloudVolumeController < ApplicationController
         render_flash
       end
     end
+  end
+
+  def set_form_vars
+    @edit = {}
+    @edit[:cloud_volume_id] = @volume.id
+    @edit[:key] = "cloud_volume_edit__#{@volume.id || "new"}"
+    @edit[:new] = {}
+    @edit[:current] = {}
+    @edit[:new][:name] = @volume.name
+    @edit[:current] = @edit[:new].dup
+    session[:edit] = @edit
+  end
+
+  def new
+    assert_privileges("cloud_volume_new")
+    @volume = CloudVolume.new
+    @in_a_form = true
+    drop_breadcrumb(:name => "Add New #{ui_lookup(:table => 'cloud_volume')}", :url => "/cloud_volume/new")
+  end
+
+  def edit
+    assert_privileges("cloud_volume_edit")
+    @volume = find_by_id_filtered(CloudVolume, params[:id])
+    set_form_vars
+    @in_a_form = true
+    session[:changed] = false
+    drop_breadcrumb({:name => "Edit #{ui_lookup(:table => 'cloud_volume')} '#{@volume.name}'", :url => "/cloud_volume/edit/#{@volume.id}"})
   end
 
   def show

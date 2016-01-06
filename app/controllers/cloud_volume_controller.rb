@@ -20,7 +20,7 @@ class CloudVolumeController < ApplicationController
 
     if !@flash_array.nil? && params[:pressed] == "cloud_volume_delete" && @single_delete
       render :update do |page|
-         # redirect to build the retire screen
+        # redirect to build the retire screen
         page.redirect_to :action => 'show_list', :flash_msg => @flash_array[0][:message]
       end
     else

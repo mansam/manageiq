@@ -18,6 +18,7 @@ class CloudVolumeController < ApplicationController
     return tag("CloudVolume") if params[:pressed] == "cloud_volume_tag"
     delete_volumes if params[:pressed] == 'cloud_volume_delete'
     edit_record if params[:pressed] == 'cloud_volume_edit'
+    form_button if params[:pressed] == 'form_button'
 
     if !@flash_array.nil? && params[:pressed] == "cloud_volume_delete" && @single_delete
       render :update do |page|
@@ -48,6 +49,12 @@ class CloudVolumeController < ApplicationController
     end
   end
 
+  def get_form_vars
+    @edit = @edit || {}
+    @edit[:new] = @edit[:new] || {}
+    @edit[:new][:name] = params[:name] if params[:name]
+  end
+
   def set_form_vars
     @edit = {}
     @edit[:cloud_volume_id] = @volume.id
@@ -57,6 +64,18 @@ class CloudVolumeController < ApplicationController
     @edit[:new][:name] = @volume.name
     @edit[:current] = @edit[:new].dup
     session[:edit] = @edit
+  end
+
+  # Set record variables to new values
+  def set_record_vars(cloud_volume, mode = nil)
+    cloud_volume.name = @edit[:new][:name]
+    true
+  end
+
+  def valid_record?(cloud_volume)
+    valid = true
+    @errors = []
+    valid
   end
 
   def new
@@ -75,7 +94,65 @@ class CloudVolumeController < ApplicationController
     drop_breadcrumb({:name => "Edit #{ui_lookup(:table => 'cloud_volume')} '#{@volume.name}'", :url => "/cloud_volume/edit/#{@volume.id}"})
   end
 
-  def form_button
+  def update
+    assert_privileges("cloud_volume_edit")
+    return unless load_edit("cloud_volume_edit__#{params[:id]}")
+    get_form_vars
+    changed = (@edit[:new] != @edit[:current])
+    case params[:button]
+    when "cancel"
+      session[:edit] = nil
+      flash = "Edit for Cloud Volume \""
+      @breadcrumbs.pop if @breadcrumbs
+      @volume = find_by_id_filtered(CloudVolume, params[:id])
+      flash = _("Edit of #{ui_lookup(:table => 'cloud_volume')} \"#{@volume.name}\" was cancelled by the user")
+      render :update do |page|
+        page.redirect_to :action => @lastaction, :id => @volume.id, :display => session[:cloud_volume_display], :flash_msg => flash
+      end
+
+    when "save"
+      valid_cloud_volume = find_by_id_filtered(CloudVolume, params[:id])
+      set_record_vars(valid_cloud_volume)
+      if valid_record?(valid_cloud_volume) && valid_cloud_volume.save
+        add_flash(_("#{ui_lookup(:table => 'cloud_volume')} \"#{valid_cloud_volume.name}\" was saved"))
+        @breadcrumbs.pop if @breadcrumbs
+        AuditEvent.success(build_saved_audit(valid_cloud_volume, @edit))
+        session[:edit] = nil
+        session[:flash_msgs] = @flash_array.dup
+        render :update do |page|
+          page.redirect_to :action => "show", :id => valid_cloud_volume.id.to_s
+        end
+        return
+      end
+
+    when "reset"
+      params[:edittype] = @edit[:edittype]
+      add_flash(_("All changes have been reset"), :warning)
+      @in_a_form = true
+      session[:flash_msgs] = @flash_array.dup
+      render :update do |page|
+        page.redirect_to :action => 'edit', :id => params[:id]
+      end
+
+    when "validate"
+      verify_cloud_volume = find_by_id_filtered(CloudVolume, params[:validate_id] ? params[:validate_id].to_i : params[:id])
+      set_record_vars(verify_cloud_volume, :validate)
+      @in_a_form = true
+      @changed = session[:changed]
+      render :update do |page|
+        page.replace("flash_msg_div", :partial => "layouts/flash_msg")
+      end
+    end
+  end
+
+  def form_field_changed
+    return unless load_edit("cloud_volume_edit__#{params[:id]}")
+    get_form_vars
+    @changed = (@edit[:new] != @edit[:current])
+    render :update do |page|
+      page.replace(@refresh_div, :partial => @refresh_partial) if @refresh_div
+      page << javascript_for_miq_button_visibility(@changed) if @changed
+    end
   end
 
   def show

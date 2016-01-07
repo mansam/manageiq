@@ -16,23 +16,5 @@
                           :class => "form-control",
                           "data-miq_focus" => true,
                           "data-miq_observe" => {:interval => '.5', :url => url}.to_json)
-    .form-group
-      %label.col-md-2.control-label
-        = _('Description')
-        (
-        %span#description_count>= @edit[:new][:description] ? @edit[:new][:description].length : 0
-        \/100)
-      .col-md-8
-        %div
-          = text_area_tag("description",
-                          @edit[:new][:description],
-                          :rows => 4,
-                          :maxlength => "100",
-                          :class => "form-control",
-                          :counter => "description_count",
-                          "data-miq_check_max_length" => true,
-                          "data-miq_observe" => {:interval => '.5', :url => url}.to_json)
 
-
-  - unless @edit[:explorer]
-    = render(:partial => '/layouts/edit_form_buttons', :locals  => {:action_url => "form_button", :ajax_buttons => true, :record_id => @volume.id})
+  = render(:partial => '/layouts/edit_form_buttons', :locals  => {:ajax_buttons => true, :record_id => @volume.id})

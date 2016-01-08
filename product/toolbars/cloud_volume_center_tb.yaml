@@ -8,6 +8,11 @@
     :title: Configuration
     :text: Configuration
     :items:
+    - :button: cloud_volume_edit
+      :image: edit
+      :text: 'Edit selected #{ui_lookup(:table=>"cloud_volume")}'
+      :title: 'Edit selected #{ui_lookup(:table=>"cloud_volume")}'
+      :url_parms: 'main_div'
     - :button: cloud_volume_delete
       :image: remove
       :text: 'Remove selected #{ui_lookup(:tables=>"cloud_volume")} from the VMDB'

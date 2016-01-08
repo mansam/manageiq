@@ -16,5 +16,16 @@
                           :class => "form-control",
                           "data-miq_focus" => true,
                           "data-miq_observe" => {:interval => '.5', :url => url}.to_json)
+    .form-group
+      %label.col-md-2.control-label
+        = _('Size')
+      .col-md-8
+        = text_field_tag("size",
+                          @edit[:new][:size],
+                          :maxlength => 10,
+                          :class => "form-control",
+                          "data-miq_focus" => true,
+                          "data-miq_observe" => {:interval => '.5', :url => url}.to_json)
+
 
   = render(:partial => '/layouts/edit_form_buttons', :locals  => {:ajax_buttons => true, :record_id => @volume.id})

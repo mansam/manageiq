@@ -32,7 +32,7 @@ Vmdb::Application.configure do
   config.assets.compress = false
 
   # Expands the lines which load the assets
-  config.assets.debug = true
+  config.assets.debug = false
 
   # Raise exceptions in transactional callbacks
   config.active_record.raise_in_transactional_callbacks = true

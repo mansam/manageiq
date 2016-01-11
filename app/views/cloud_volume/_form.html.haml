@@ -18,7 +18,7 @@
                           "data-miq_observe" => {:interval => '.5', :url => url}.to_json)
     .form-group
       %label.col-md-2.control-label
-        = _('Size')
+        = _('Size (in gigabytes)')
       .col-md-8
         = text_field_tag("size",
                           @edit[:new][:size],
@@ -26,6 +26,37 @@
                           :class => "form-control",
                           "data-miq_focus" => true,
                           "data-miq_observe" => {:interval => '.5', :url => url}.to_json)
+  %h3
+    = _('Placement')
+  .form-horizontal
+    .form-group
+      %label.col-md-2.control-label
+        = _('Provider')
+      .col-md-8
+        = select_tag("chosen_ems",
+                      options_for_select(@edit[:ems_choices].sort, @edit[:new][:ems_id]),
+                      :multiple => false,
+                      :class => "widthed",
+                      "data-miq_sparkle_on" => true,
+                      "data-miq_sparkle_off" => true,
+                      :class    => "selectpicker")
+    :javascript
+       miqInitSelectPicker();
+       miqSelectPickerEvent("chosen_ems", "#{url}")
+  .form-horizontal
+    .form-group
+      %label.col-md-2.control-label
+        = _('Cloud Tenant')
+      .col-md-8
+        = select_tag("chosen_cloud_tenant",
+                      options_for_select(@edit[:cloud_tenant_choices].sort, @edit[:new][:cloud_tenant_id]),
+                      :multiple => false,
+                      :class => "widthed",
+                      "data-miq_sparkle_on" => true,
+                      "data-miq_sparkle_off" => true,
+                      :class    => "selectpicker")
+    :javascript
+       miqInitSelectPicker();
+       miqSelectPickerEvent("chosen_cloud_tenant", "#{url}")
 
-
-  = render(:partial => '/layouts/edit_form_buttons', :locals  => {:ajax_buttons => true, :record_id => @volume.id})
+  = render(:partial => '/layouts/edit_form_buttons', :locals  => {:ajax_buttons => true, :record_id => "#{@volume.id || 'new'}"})

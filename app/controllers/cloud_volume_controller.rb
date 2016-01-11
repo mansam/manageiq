@@ -17,7 +17,6 @@ class CloudVolumeController < ApplicationController
     @refresh_div = "main_div"
     return tag("CloudVolume") if params[:pressed] == "cloud_volume_tag"
     delete_volumes if params[:pressed] == 'cloud_volume_delete'
-    edit_record if params[:pressed] == 'cloud_volume_edit'
     form_button if params[:pressed] == 'form_button'
 
     if !@flash_array.nil? && params[:pressed] == "cloud_volume_delete" && @single_delete
@@ -30,14 +29,23 @@ class CloudVolumeController < ApplicationController
         show_list
         replace_gtl_main_div
       else
-        if @redirect_controller
-          render :update do |page|
-            page.redirect_to :controller => @redirect_controller, :action => @refresh_partial, :id => @redirect_id, :org_controller => @org_controller
-          end
+        if params[:id]
+          checked_volume_id = params[:id]
         else
-          render :update do |page|
-            page.redirect_to :action => @refresh_partial, :id => @redirect_id
-          end
+          checked_volumes = find_checked_items
+          checked_volume_id = checked_volumes[0] if checked_volumes.length == 1
+        end
+        render :update do |page|
+          page.redirect_to :action => "edit", :id => checked_volume_id
+        end
+      end
+    elsif params[:pressed] == "cloud_volume_new"
+      if @flash_array
+        show_list
+        replace_gtl_main_div
+      else
+        render :update do |page|
+          page.redirect_to :action => "new"
         end
       end
     else
@@ -63,8 +71,14 @@ class CloudVolumeController < ApplicationController
     @edit[:key] = "cloud_volume_edit__#{@volume.id || "new"}"
     @edit[:new] = {}
     @edit[:current] = {}
+
+    @edit[:ems_choices] = {}
+    ManageIQ::Providers::CloudManager.all.each{ |ems| @edit[:ems_choices][ems.name] = ems.id }
+    @edit[:cloud_tenant_choices] = {}
+    CloudTenant.all.each{ |tenant| @edit[:cloud_tenant_choices][tenant.name] = tenant.id }
+
     @edit[:new][:name] = @volume.name
-    @edit[:new][:size] = @volume.size
+    @edit[:new][:size] = @volume.size / 1.gigabyte
     @edit[:new][:bootable] = @volume.bootable ? @volume.bootable : false
     @edit[:current] = @edit[:new].dup
     session[:edit] = @edit
@@ -76,9 +90,14 @@ class CloudVolumeController < ApplicationController
     true
   end
 
+  def validate_options(options)
+    return true, nil
+  end
+
   def new
     assert_privileges("cloud_volume_new")
     @volume = CloudVolume.new
+    set_form_vars
     @in_a_form = true
     drop_breadcrumb(:name => "Add New #{ui_lookup(:table => 'cloud_volume')}", :url => "/cloud_volume/new")
   end
@@ -91,33 +110,47 @@ class CloudVolumeController < ApplicationController
         page.redirect_to :action => 'show_list',
                          :flash_msg => _("Add of new #{ui_lookup(:table =>'cloud_volume')} was cancelled by the user")
       end
+
     when "add"
-      @volume = CloudVolume.new
-      old_volume_attributes = @volume.attributes.clone
-      set_record_vars(@volume, :validate)                        # Set the record variables, but don't save
-      if valid_record?(@volume) && @volume.save
-        set_record_vars(@volume)
-        AuditEvent.success(build_saved_audit(@volume, old_volume_attributes))
-        message = _("#{ui_lookup(:table => 'cloud_volume')} \"#{@volume.name}\" was added")
+      options = @edit[:new]
+      ext_management_system = find_by_filtered_id(options[:ems_id])
+      valid_options, option_details = validate_options(options)
+      valid_action, action_details = CloudVolume.validate_create_volume(ext_management_system)
+      if valid_action and valid_options
+        begin
+          CloudVolume.create_volume(ext_management_system, options)
+          add_flash(_("Creating #{ui_lookup(table: 'cloud_volume')} #{options[:display_name]}"))
+        rescue => ex
+          add_flash(_("Unable to create #{ui_lookup(table: 'cloud_volume')} #{options[:display_name]}: #{ex}"), :error)
+        end
+        @breadcrumbs.pop if @breadcrumbs
+        session[:edit] = nil
+        session[:flash_msgs] = @flash_array.dup if @flash_array
         render :update do |page|
-          page.redirect_to :action    => 'show_list',
-                           :flash_msg => message
+          page.redirect_to :action => "show_list"
         end
       else
         @in_a_form = true
-        @errors.each { |msg| add_flash(msg, :error) }
-        @host.errors.each do |field, msg|
-          add_flash("#{field.to_s.capitalize} #{msg}", :error)
-        end
+        add_flash(_(action_details), :error) unless action_details.nil?
+        option_details.each { |msg| add_flash(msg, :error) }
         drop_breadcrumb(:name => "Add New #{ui_lookup(:table => 'cloud_volume')}", :url => "/cloud_volume/new")
         render :update do |page|
           page.replace("flash_msg_div", :partial => "layouts/flash_msg")
         end
       end
+
     when "validate"
-      verify_volume = CloudVolume.new
-      set_record_vars(verify_volume, :validate)
       @in_a_form = true
+      options = @edit[:new]
+      ext_management_system = find_by_filtered_id(options[:ems_id])
+      valid_options, option_details = validate_options?(options)
+      valid_action, action_details = CloudVolume.validate_create_volume(ext_management_system)
+      if valid_action and valid_options
+        add_flash(_("Validation successful"))
+      else
+        add_flash(_(action_details), :error) unless details.nil?
+        option_details.each { |msg| add_flash(_(msg), :error) }
+      end
       render :update do |page|
         page.replace("flash_msg_div", :partial => "layouts/flash_msg")
       end
@@ -153,8 +186,10 @@ class CloudVolumeController < ApplicationController
       @volume = find_by_id_filtered(CloudVolume, params[:id])
       options = @edit[:new]
       set_record_vars(@volume)
-      valid, details = @volume.validate_update_volume
-      if valid
+      valid_update, update_details = @volume.validate_update_volume
+      valid_options, option_details = validate_options(options)
+
+      if valid_update and valid_options
         begin
           @volume.update_volume(options)
           add_flash(_("Updating #{ui_lookup(table: 'cloud_volume')} #{@volume.name}"))
@@ -162,7 +197,8 @@ class CloudVolumeController < ApplicationController
           add_flash(_("Unable to update #{ui_lookup(table: 'cloud_volume')} #{@volume.name}: #{ex}"), :error)
         end
       else
-        add_flash(_(details), :error)
+        add_flash(_(update_details), :error)
+        option_details.each { |msg| add_flash(_(msg), :error) }
       end
       @breadcrumbs.pop if @breadcrumbs
       session[:edit] = nil
@@ -181,18 +217,16 @@ class CloudVolumeController < ApplicationController
       end
 
     when "validate"
-      @in_a_form = true
-      @changed = session[:changed]
-      @volume = find_by_id_filtered(CloudVolume, params[:validate_id] ? params[:validate_id].to_i : params[:id])
-      options = @edit[:new]
-      set_record_vars(@volume)
-      result, details = @volume.validate_update_volume
-      if result
+      valid_action, details = CloudVolume.validate_create_volume(ext_management_system)
+      if valid_action and valid_record?(@edit)
         add_flash(_("Validation successful"))
       else
         add_flash(_(details), :error)
       end
-      render_flash
+      @in_a_form = true
+      render :update do |page|
+        page.replace("flash_msg_div", :partial => "layouts/flash_msg")
+      end
     end
   end
 

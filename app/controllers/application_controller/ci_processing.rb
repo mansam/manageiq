@@ -486,8 +486,6 @@ module ApplicationController::CiProcessing
     when "host_edit"
       @redirect_controller = "host"
       session[:host_items] = obj if obj.length > 1
-    when "cloud_volume_edit"
-      @redirect_controller = "cloud_volume"
     end
     @redirect_id = obj[0] if obj.length == 1      # not redirecting to an id if multi host are selected for credential edit
 

@@ -12,3 +12,16 @@
       :image: tag
       :text: "Edit Tags"
       :title: 'Edit tags for this Key Pair'
+- :name: auth_key_pair_cloud_vmdb
+  :items:
+  - :buttonSelect: auth_key_pair_cloud_vmdb_choice
+    :image: vmdb
+    :title: Configuration
+    :text: Configuration
+    :items:
+    - :button: auth_key_pair_cloud_delete
+      :image: remove
+      :text: 'Remove this #{ui_lookup(:table=>"auth_key_pair_cloud")}'
+      :title: 'Remove this #{ui_lookup(:table=>"auth_key_pair_cloud")}'
+      :url_parms: '&refresh=y'
+      :confirm: 'Warning: The selected #{ui_lookup(:table=>"auth_key_pair_cloud")} and ALL of its components will be permanently removed from the Virtual Management Database.  Are you sure you want to remove the selected #{ui_lookup(:table=>"auth_key_pair_cloud")}'

@@ -17,3 +17,24 @@
       :url_parms: 'main_div'
       :enabled: 'false'
       :onwhen: '1+'
+- :name: auth_key_pair_cloud_vmdb
+  :items:
+  - :buttonSelect: auth_key_pair_cloud_vmdb_choice
+    :image: vmdb
+    :title: Configuration
+    :text: Configuration
+    :items:
+    - :button: auth_key_pair_cloud_new
+      :image: new
+      :text: 'Add a new #{ui_lookup(:table=>"auth_key_pair_cloud")}'
+      :title: 'Add a new #{ui_lookup(:table=>"auth_key_pair_cloud")}'
+    - :separator:
+    - :button: auth_key_pair_cloud_delete
+      :image: remove
+      :text: 'Remove selected #{ui_lookup(:tables=>"auth_key_pair_cloud")}'
+      :title: 'Remove selected #{ui_lookup(:tables=>"auth_key_pair_cloud")}'
+      :url_parms: '&refresh=y'
+      :confirm: 'Warning: The selected #{ui_lookup(:tables=>"auth_key_pair_cloud")} and ALL of their components will be permanently removed from the Virtual Management Database.  Are you sure you want to remove the selected #{ui_lookup(:tables=>"auth_key_pair_cloud")}'
+      :url_parms: 'main_div'
+      :enabled: 'false'
+      :onwhen: '1+'

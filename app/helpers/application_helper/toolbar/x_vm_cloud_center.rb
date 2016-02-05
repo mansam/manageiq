@@ -94,6 +94,12 @@ class ApplicationHelper::Toolbar::XVmCloudCenter < ApplicationHelper::Toolbar::B
           t = N_('Retire this Instance'),
           t,
           :confirm => N_("Retire this Instance?")),
+        button(
+          :instance_migrate,
+          'product product-migrate fa-lg',
+          t = N_('Migrate Instance'),
+          t,
+          :url_parms => 'main_div')
       ]
     ),
   ])

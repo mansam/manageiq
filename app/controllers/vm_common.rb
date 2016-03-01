@@ -1595,9 +1595,9 @@ module VmCommon
       presenter.update(:main_div, r[:partial => partial, :locals => partial_locals])
 
       locals = {:action_url => action, :record_id => @record ? @record.id : nil}
-      if %w(clone migrate miq_request_new pre_prov publish reconfigure).include?(@sb[:action])
+      if %w(clone migrate miq_request_new pre_prov publish reconfigure live_migrate).include?(@sb[:action])
         locals[:no_reset]        = true                                                                               # don't need reset button on the screen
-        locals[:submit_button]   = ['clone', 'migrate', 'publish', 'reconfigure', 'pre_prov'].include?(@sb[:action])  # need submit button on the screen
+        locals[:submit_button]   = ['clone', 'migrate', 'publish', 'reconfigure', 'pre_prov', 'live_migrate'].include?(@sb[:action])  # need submit button on the screen
         locals[:continue_button] = ['miq_request_new'].include?(@sb[:action])                                         # need continue button on the screen
         update_buttons(locals) if @edit && @edit[:buttons].present?
         presenter[:clear_tree_cookies] = "prov_trees"
@@ -1833,6 +1833,10 @@ module VmCommon
         header = _("Drift for %{model} \"%{name}\"") % {:name => name, :model => ui_lookup(:model => @sb[:compare_db])}
       end
       action = nil
+    when "live_migrate"
+      partial = "vm_common/live_migrate"
+      header = _("Live Migrating %{model} \"%{name}\"") % {:name => name, :model => ui_lookup(:table => table)}
+      action = "live_migrate_vm"
     when "clone", "migrate", "publish"
       partial = "miq_request/prov_edit"
       header = _("%{task} %{model}") % {:task => @sb[:action].capitalize, :model => ui_lookup(:table => table)}

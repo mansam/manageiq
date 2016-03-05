@@ -2079,6 +2079,7 @@ Vmdb::Application.routes.draw do
         scan_histories
         sections_field_changed
         security_groups
+        auth_key_pair_clouds
         show
         squash_toggle
         tagging_edit

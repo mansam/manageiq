@@ -589,6 +589,10 @@ module VmCommon
     show_association('security_groups', 'Security Groups', 'security_group', :security_groups, SecurityGroup)
   end
 
+  def auth_key_pair_clouds
+    show_association('auth_key_pair_clouds', 'Key Paurs', 'auth_key_pair_cloud', :auth_key_pair_clouds, ManageIQ::Providers::CloudManager::AuthKeyPair, 'key_pairs')
+  end
+
   def snap
     assert_privileges(params[:pressed])
     @vm = @record = identify_record(params[:id], VmOrTemplate)

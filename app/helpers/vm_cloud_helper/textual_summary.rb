@@ -318,7 +318,12 @@ module VmCloudHelper::TextualSummary
     return nil if @record.kind_of?(ManageIQ::Providers::CloudManager::Template)
     h = {:label => _("Key Pairs")}
     key_pairs = @record.key_pairs
+    num = key_pairs.length
     h[:value] = key_pairs.blank? ? _("N/A") : key_pairs.collect(&:name).join(", ")
+    h[:explorer] = true
+    if num > 0
+      h[:link]  = url_for(:action => 'auth_key_pair_clouds', :id => @record, :controller => controller.controller_name)
+    end
     h
   end
 

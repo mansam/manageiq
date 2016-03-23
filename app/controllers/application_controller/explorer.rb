@@ -69,6 +69,7 @@ module ApplicationController::Explorer
     'publish'   => :s2, 'reconfigure'      => :s2, 'miq_request_new' => :s2,
     'retire'    => :s2, 'right_size'       => :s2, 'snapshot_add'    => :s2,
     'tag'       => :s2, 'timeline'         => :s2, 'live_migrate'    => :s2,
+    'evacuate'  => :s2,
 
     # specials
     'perf'         => :show,
@@ -98,7 +99,7 @@ module ApplicationController::Explorer
     elsif X_BUTTON_ALLOWED_ACTIONS[action] == :s2
       # don't need to set params[:id] and do find_checked_items for methods
       # like ownership, the code in those methods handle it
-      if ['edit', 'right_size', 'live_migrate'].include?(action)
+      if ['edit', 'right_size', 'live_migrate', 'evacuate'].include?(action)
         @_params[:id] = (params[:id] ? [params[:id]] : find_checked_items)[0]
       end
       if ['protect', 'tag'].include?(action)

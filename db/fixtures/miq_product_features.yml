@@ -4247,6 +4247,10 @@
         :description: Migrate Instance
         :feature_type: control
         :identifier: instance_live_migrate
+      - :name: Evacuate Instance
+        :description: Evacate Instance
+        :feature_type: control
+        :identifier: instance_evacuate
     - :name: Modify
       :description: Modify Instances
       :feature_type: admin

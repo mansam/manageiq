@@ -2239,6 +2239,8 @@ Vmdb::Application.routes.draw do
         tagging_edit
         migrate
         live_migrate_form_fields
+        evacuate
+        evacuate_form_fields
       ) +
                compare_get,
       :post => %w(
@@ -2290,6 +2292,7 @@ Vmdb::Application.routes.draw do
         wait_for_task
         win32_services
         live_migrate_vm
+        evacuate_vm
       ) +
                adv_search_post +
                compare_post +

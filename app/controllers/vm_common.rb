@@ -1595,9 +1595,9 @@ module VmCommon
       presenter.update(:main_div, r[:partial => partial, :locals => partial_locals])
 
       locals = {:action_url => action, :record_id => @record ? @record.id : nil}
-      if %w(clone migrate miq_request_new pre_prov publish reconfigure live_migrate).include?(@sb[:action])
+      if %w(clone migrate miq_request_new pre_prov publish reconfigure live_migrate evacuate).include?(@sb[:action])
         locals[:no_reset]        = true                                                                               # don't need reset button on the screen
-        locals[:submit_button]   = ['clone', 'migrate', 'publish', 'reconfigure', 'pre_prov', 'live_migrate'].include?(@sb[:action])  # need submit button on the screen
+        locals[:submit_button]   = ['clone', 'migrate', 'publish', 'reconfigure', 'pre_prov', 'live_migrate', 'evacuate'].include?(@sb[:action])  # need submit button on the screen
         locals[:continue_button] = ['miq_request_new'].include?(@sb[:action])                                         # need continue button on the screen
         update_buttons(locals) if @edit && @edit[:buttons].present?
         presenter[:clear_tree_cookies] = "prov_trees"
@@ -1695,7 +1695,7 @@ module VmCommon
               :record_id  => @edit[:rec_id],
             }
           ])
-        elsif @sb[:action] == 'live_migrate'
+        elsif %w(live_migrate evacuate).include?(@sb[:action])
           presenter.update(:form_buttons_div, r[:partial => "layouts/angular/paging_div_buttons"])
         elsif action != "retire" && action != "reconfigure_update"
           presenter.update(:form_buttons_div, r[:partial => 'layouts/x_edit_buttons', :locals => locals])
@@ -1839,6 +1839,10 @@ module VmCommon
       partial = "vm_common/live_migrate"
       header = _("Live Migrating %{model} \"%{name}\"") % {:name => name, :model => ui_lookup(:table => table)}
       action = "live_migrate_vm"
+    when "evacuate"
+      partial = "vm_common/evacuate"
+      header = _("Evacuating %{model} \"%{name}\"") % {:name => name, :model => ui_lookup(:table => table)}
+      action = "evacuate_vm"
     when "clone", "migrate", "publish"
       partial = "miq_request/prov_edit"
       header = _("%{task} %{model}") % {:task => @sb[:action].capitalize, :model => ui_lookup(:table => table)}

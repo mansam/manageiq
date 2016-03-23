@@ -99,6 +99,12 @@ class ApplicationHelper::Toolbar::XVmCloudCenter < ApplicationHelper::Toolbar::B
           'product product-migrate fa-lg',
           t = N_('Migrate Instance'),
           t,
+          :url_parms => 'main_div'),
+        button(
+          :instance_evacuate,
+          'product product-evacuate fa-lg',
+          t = N_('Evacuate Instance'),
+          t,
           :url_parms => 'main_div')
       ]
     ),

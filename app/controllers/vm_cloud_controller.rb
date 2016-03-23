@@ -52,18 +52,11 @@ class VmCloudController < ApplicationController
 
     case params[:button]
     when "cancel"
-      if @edit[:explorer]
-        add_flash(_("Live Migration of %{model} \"%{name}\" was cancelled by the user") % {
-          :model => ui_lookup(:table => "vm_cloud"), :name => @record.name})
-        @record = @sb[:action] = nil
-        replace_right_cell
-      else
-        add_flash(_("Live Migration of %{model} \"%{name}\" was cancelled by the user") % {
-          :model => ui_lookup(:table => "vm_cloud"), :name => @record.name})
-        session[:flash_msgs] = @flash_array.dup
-        render :update do |page|
-          page.redirect_to(previous_breadcrumb_url)
-        end
+      add_flash(_("Live Migration of %{model} \"%{name}\" was cancelled by the user") % {
+        :model => ui_lookup(:table => "vm_cloud"), :name => @record.name})
+      session[:flash_msgs] = @flash_array.dup
+      render :update do |page|
+        page.redirect_to(previous_breadcrumb_url)
       end
     when "submit"
       valid, details = @record.validate_live_migrate
@@ -98,15 +91,8 @@ class VmCloudController < ApplicationController
       end
       params[:id] = @record.id.to_s # reset id in params for show
       @record = nil
-      if @edit[:explorer]
-        @sb[:action] = nil
-        replace_right_cell
-      else
-        session[:flash_msgs] = @flash_array.dup
-        render :update do |page|
-          page.redirect_to(previous_breadcrumb_url)
-        end
-      end
+      @sb[:action] = nil
+      replace_right_cell
     end
   end
 

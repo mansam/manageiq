@@ -23,13 +23,17 @@ class CloudVolumeController < ApplicationController
   def button
     @edit = session[:edit] # Restore @edit for adv search box
     params[:display] = @display if %w(vms instances images).include?(@display)
-
-    if params[:pressed].starts_with?("instance_")
+    pfx = "instance"
+    if params[:pressed].starts_with?(pfx)
 
       process_vm_buttons("instance")
+      evacuate if params[:pressed] == "instance_evacuate"
+      live_migrate if params[:pressed] == "instance_live_migrate"
+      attach if params[:pressed] == "instance_attach"
+      detach if params[:pressed] == "instance_detach"
 
       # Control transferred to another screen, so return
-      return if ["host_drift", "#{pfx}_compare", "#{pfx}_tag", "#{pfx}_policy_sim",
+      return if ["#{pfx}_compare", "#{pfx}_tag", "#{pfx}_policy_sim",
                  "#{pfx}_retire", "#{pfx}_protect", "#{pfx}_ownership",
                  "#{pfx}_reconfigure", "#{pfx}_retire", "#{pfx}_right_size",
                  "storage_tag"].include?(params[:pressed]) && @flash_array.nil?

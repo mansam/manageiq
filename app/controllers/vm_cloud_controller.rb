@@ -46,7 +46,7 @@ class VmCloudController < ApplicationController
         :details  => @record.is_available_now_error_message(:resize)}, :error)
     end
   end
-  alias instance_resize resize
+  alias_method :instance_resize, :resize
 
   def resize_vm
     assert_privileges("instance_resize")
@@ -212,7 +212,7 @@ class VmCloudController < ApplicationController
     @in_a_form = true
     @refresh_partial = "vm_common/attach"
   end
-  alias instance_attach attach
+  alias_method :instance_attach, :attach
 
   def detach
     assert_privileges("instance_detach")
@@ -241,7 +241,7 @@ class VmCloudController < ApplicationController
     @in_a_form = true
     @refresh_partial = "vm_common/detach"
   end
-  alias instance_detach detach
+  alias_method :instance_detach, :detach
 
   def attach_volume
     assert_privileges("instance_attach")

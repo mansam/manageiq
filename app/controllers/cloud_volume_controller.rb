@@ -23,51 +23,68 @@ class CloudVolumeController < ApplicationController
   def button
     @edit = session[:edit] # Restore @edit for adv search box
     params[:display] = @display if %w(vms instances images).include?(@display)
-    params[:page] = @current_page unless @current_page.nil? # Save current page for list refresh
 
-    @refresh_div = "main_div"
-    return tag("CloudVolume") if params[:pressed] == "cloud_volume_tag"
-    delete_volumes if params[:pressed] == 'cloud_volume_delete'
+    if params[:pressed].starts_with?("instance_")
 
-    if @flash_array
-      show_list
-      replace_gtl_main_div
-    elsif params[:pressed] == "cloud_volume_attach"
-      checked_volume_id = get_checked_volume_id(params)
-      render :update do |page|
-        page << javascript_prologue
-        page.redirect_to :action => "attach", :id => checked_volume_id
+      process_vm_buttons("instance")
+
+      # Control transferred to another screen, so return
+      return if ["host_drift", "#{pfx}_compare", "#{pfx}_tag", "#{pfx}_policy_sim",
+                 "#{pfx}_retire", "#{pfx}_protect", "#{pfx}_ownership",
+                 "#{pfx}_reconfigure", "#{pfx}_retire", "#{pfx}_right_size",
+                 "storage_tag"].include?(params[:pressed]) && @flash_array.nil?
+
+      unless ["#{pfx}_edit", "#{pfx}_miq_request_new", "#{pfx}_clone", "#{pfx}_migrate", "#{pfx}_publish"].include?(params[:pressed])
+        @refresh_div = "main_div"
+        @refresh_partial = "layouts/gtl"
+        show
       end
-    elsif params[:pressed] == "cloud_volume_detach"
-      checked_volume_id = get_checked_volume_id(params)
-      @volume = find_by_id_filtered(CloudVolume, checked_volume_id)
-      if @volume.attachments.empty?
-        add_flash(_("%{volume} \"%{volume_name}\" is not attached to any %{instances}") % {
-          :volume      => ui_lookup(:table => 'cloud_volume'),
-          :volume_name => @volume.name,
-          :instances   => ui_lookup(:tables => 'vm_cloud')}, :error)
-        render_flash
-      else
+    else
+      params[:page] = @current_page unless @current_page.nil? # Save current page for list refresh
+      @refresh_div = "main_div"
+      return tag("CloudVolume") if params[:pressed] == "cloud_volume_tag"
+      delete_volumes if params[:pressed] == 'cloud_volume_delete'
+
+      if @flash_array
+        show_list
+        replace_gtl_main_div
+      elsif params[:pressed] == "cloud_volume_attach"
+        checked_volume_id = get_checked_volume_id(params)
         render :update do |page|
           page << javascript_prologue
-          page.redirect_to :action => "detach", :id => checked_volume_id
+          page.redirect_to :action => "attach", :id => checked_volume_id
         end
+      elsif params[:pressed] == "cloud_volume_detach"
+        checked_volume_id = get_checked_volume_id(params)
+        @volume = find_by_id_filtered(CloudVolume, checked_volume_id)
+        if @volume.attachments.empty?
+          add_flash(_("%{volume} \"%{volume_name}\" is not attached to any %{instances}") % {
+            :volume      => ui_lookup(:table => 'cloud_volume'),
+            :volume_name => @volume.name,
+            :instances   => ui_lookup(:tables => 'vm_cloud')}, :error)
+          render_flash
+        else
+          render :update do |page|
+            page << javascript_prologue
+            page.redirect_to :action => "detach", :id => checked_volume_id
+          end
+        end
+      elsif params[:pressed] == "cloud_volume_edit"
+        checked_volume_id = get_checked_volume_id(params)
+        render :update do |page|
+          page << javascript_prologue
+          page.redirect_to :action => "edit", :id => checked_volume_id
+        end
+      elsif params[:pressed] == "cloud_volume_new"
+        render :update do |page|
+          page << javascript_prologue
+          page.redirect_to :action => "new"
+        end
+      elsif !flash_errors? && @refresh_div == "main_div" && @lastaction == "show_list"
+        replace_gtl_main_div
+      else
+        render_flash
       end
-    elsif params[:pressed] == "cloud_volume_edit"
-      checked_volume_id = get_checked_volume_id(params)
-      render :update do |page|
-        page << javascript_prologue
-        page.redirect_to :action => "edit", :id => checked_volume_id
-      end
-    elsif params[:pressed] == "cloud_volume_new"
-      render :update do |page|
-        page << javascript_prologue
-        page.redirect_to :action => "new"
-      end
-    elsif !flash_errors? && @refresh_div == "main_div" && @lastaction == "show_list"
-      replace_gtl_main_div
-    else
-      render_flash
     end
   end
 

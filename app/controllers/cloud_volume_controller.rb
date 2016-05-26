@@ -27,10 +27,11 @@ class CloudVolumeController < ApplicationController
     if params[:pressed].starts_with?(pfx)
 
       process_vm_buttons("instance")
-      VmCloudController.evacuate if params[:pressed] == "instance_evacuate"
-      VmCloudController.live_migrate if params[:pressed] == "instance_live_migrate"
-      VmCloudController.attach if params[:pressed] == "instance_attach"
-      VmCloudController.detach if params[:pressed] == "instance_detach"
+      evacuate if params[:pressed] == "instance_evacuate"
+      live_migrate if params[:pressed] == "instance_live_migrate"
+      attach if params[:pressed] == "instance_attach"
+      detach if params[:pressed] == "instance_detach"
+      resize if params[:pressed] == "instance_resize"
 
       # Control transferred to another screen, so return
       return if ["#{pfx}_compare", "#{pfx}_tag", "#{pfx}_policy_sim",

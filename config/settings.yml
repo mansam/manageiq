@@ -1266,8 +1266,6 @@
         :poll: 15.seconds
       :event_catcher_kubernetes:
         :poll: 1.seconds
-      :event_catcher_lenovo:
-        :poll: 4.minutes
       :event_catcher_openshift:
         :poll: 1.seconds
       :event_catcher_cinder:
@@ -1319,7 +1317,6 @@
         :ems_refresh_worker_google_network: {}
         :ems_refresh_worker_hawkular: {}
         :ems_refresh_worker_kubernetes: {}
-        :ems_refresh_worker_lenovo_physical_infra: {}
         :ems_refresh_worker_microsoft: {}
         :ems_refresh_worker_openshift: {}
         :ems_refresh_worker_openstack: {}
